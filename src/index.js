@@ -1,7 +1,14 @@
+import { clearWalletProvider, setAddress, setChainDetails } from "./utils";
+import { modifyProvider } from "./provider";
 console.log("Load index.js of multilane");
 
 (async () => {
+  modifyProvider();
+  clearWalletProvider();
+  await setAddress();
 
+  // below are independent functions so they can be called in parallel
+  setChainDetails();
 })();
 
 window.addEventListener("message", function (event) {

@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "multilane",
+  "name": "Multilane",
   "version": "0.0.1",
   "permissions": [
     "webRequest",
@@ -18,6 +18,9 @@
     "scripts": ["dist/background.bundle.js"],
     "persistent": true
   },
+  "browser_action": {
+    "icon": "icon-128x128.png"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -25,5 +28,8 @@
       "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": ["dist/*.*"]
+  "web_accessible_resources": ["dist/*.*"],
+  "icons": {
+    "128": "src/assets/icon-128x128.png"
+  }
 }
