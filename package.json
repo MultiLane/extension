@@ -1,0 +1,19 @@
+{
+  "name": "multilane",
+  "version": "0.0.1",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@arcana/scw": "^0.0.21",
+    "webpack": "^5.89.0"
+  },
+  "devDependencies": {
+    "html-loader": "^4.2.0"
+  }
+}
