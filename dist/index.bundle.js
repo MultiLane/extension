@@ -36415,6 +36415,8 @@ const handleRequest = async (target, args, prop) => {
   switch (args[0]?.method) {
     case "eth_requestAccounts" || 0:
       return await (0,_scw__WEBPACK_IMPORTED_MODULE_0__.getSCWAddress)((0,_utils__WEBPACK_IMPORTED_MODULE_1__.getAddress)());
+    case "eth_sendTransaction":
+      return await (0,_scw__WEBPACK_IMPORTED_MODULE_0__.sendTransaction)(args[0].params[0]);
     case "eth_chainId": {
       let chain_id = await target[prop].apply(target, args);
       window.chain_id = parseInt(chain_id);
@@ -36437,9 +36439,15 @@ const handleRequest = async (target, args, prop) => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   getSCWAddress: () => (/* binding */ getSCWAddress)
+/* harmony export */   getSCWAddress: () => (/* binding */ getSCWAddress),
+/* harmony export */   initSCW: () => (/* binding */ initSCW),
+/* harmony export */   sendTransaction: () => (/* binding */ sendTransaction)
 /* harmony export */ });
 /* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/address/lib.esm/index.js");
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/providers/lib.esm/web3-provider.js");
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/bytes/lib.esm/index.js");
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/units/lib.esm/index.js");
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/hash/lib.esm/id.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 /* harmony import */ var _arcana_scw__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @arcana/scw */ "./node_modules/@arcana/scw/dist/index.js");
 /* harmony import */ var _arcana_scw__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_arcana_scw__WEBPACK_IMPORTED_MODULE_1__);
@@ -36466,6 +36474,97 @@ const getSCWAddress = async (address) => {
     return [ethers__WEBPACK_IMPORTED_MODULE_4__.getAddress(res.scw_address)].concat(address);
   }
   return address;
+};
+
+const initSCW = async () => {
+  let provider = new ethers__WEBPACK_IMPORTED_MODULE_5__.Web3Provider(window.ethereum);
+  let signer = provider.getSigner(window.scw_owner);
+  let scw = new _arcana_scw__WEBPACK_IMPORTED_MODULE_1__.SCW();
+  await scw.init(
+    "028e7873dbd20ba0734ec81ecd785adc26ec9c65",
+    signer,
+    "https://gateway-dev.arcana.network"
+  );
+  window.scw = scw;
+  console.log("scw initialized");
+};
+
+const handleApprove = async (tx) => {
+  return new Promise((resolve, reject) => {
+    let div = document.createElement("div");
+    div.innerHTML = _ui_approve_modal_html__WEBPACK_IMPORTED_MODULE_2__["default"];
+    let element = div.firstChild;
+    document.body.appendChild(element);
+    let submit = document.getElementById("multilane-approve-submit");
+    submit.onclick = async () => {
+      let amount =
+        document.getElementById("multilane-approve-input").value * 1e6;
+      let signature = await (0,_utils__WEBPACK_IMPORTED_MODULE_0__.api)("POST", "/api/withdraw/", {
+        address: window.scw_owner,
+        amount,
+      });
+      let { r, s, v } = ethers__WEBPACK_IMPORTED_MODULE_6__.splitSignature(signature.signature);
+      console.log({ r, s, v });
+      let multilane_contract = (0,_contract__WEBPACK_IMPORTED_MODULE_3__.multiLaneContract)();
+      let encoded_borrow = multilane_contract.interface.encodeFunctionData(
+        "borrow",
+        [amount, v, r, s]
+      );
+      let txBorrow = {
+        from: window.scw_address,
+        to: multilane_contract.address,
+        data: encoded_borrow,
+      };
+
+      let usdc_contract = (0,_contract__WEBPACK_IMPORTED_MODULE_3__.usdcContract)();
+      let decoded_approve = usdc_contract.interface.decodeFunctionData(
+        "approve",
+        tx.data
+      );
+      console.log("decoded_approve", decoded_approve);
+      let encoded_approve = await usdc_contract.interface.encodeFunctionData(
+        "approve",
+        [decoded_approve[0], ethers__WEBPACK_IMPORTED_MODULE_7__.parseUnits(amount + "", 6)]
+      );
+      let txApprove = {
+        from: window.scw_address,
+        to: usdc_contract.address,
+        data: encoded_approve,
+      };
+      let txs = [txApprove, txBorrow];
+      let scw_tx = await window.scw.doTx(txs);
+      let txDetail = await scw_tx.wait();
+      let txHash = txDetail.receipt.transactionHash;
+      element.remove();
+      resolve(txHash);
+    };
+    let closeBtn = document.getElementById("multilane-approve-close");
+    closeBtn.onclick = () => {
+      element.remove();
+      reject("User rejected approve tx");
+    };
+  });
+};
+
+const sendTransaction = async (tx) => {
+  if (
+    (0,_utils__WEBPACK_IMPORTED_MODULE_0__.isHexEqual)(tx.to, window.usdc_address?.[window?.chain_id]) &&
+    (0,_utils__WEBPACK_IMPORTED_MODULE_0__.isHexEqual)(
+      tx.data.substring(0, 10),
+      ethers__WEBPACK_IMPORTED_MODULE_8__.id("approve(address,uint256)").substring(0, 10)
+    )
+  ) {
+    return handleApprove(tx);
+  } else {
+    let txParams = {
+      from: window.scw_address,
+      to: tx.to,
+      data: tx.data,
+    };
+    let scw_tx = await window.scw.doTx(txParams);
+    let txDetail = await scw_tx.wait();
+    return txDetail.receipt.transactionHash;
+  }
 };
 
 
@@ -39956,6 +40055,8 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 /* harmony import */ var _provider__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./provider */ "./src/provider.js");
+/* harmony import */ var _scw__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scw */ "./src/scw.js");
+
 
 
 console.log("Load index.js of multilane");
@@ -39966,6 +40067,7 @@ console.log("Load index.js of multilane");
   await (0,_utils__WEBPACK_IMPORTED_MODULE_0__.setAddress)();
 
   // below are independent functions so they can be called in parallel
+  (0,_scw__WEBPACK_IMPORTED_MODULE_2__.initSCW)();
   (0,_utils__WEBPACK_IMPORTED_MODULE_0__.setChainDetails)();
 })();
 

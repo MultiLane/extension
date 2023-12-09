@@ -19,7 +19,7 @@
     "persistent": true
   },
   "browser_action": {
-    "icon": "icon-128x128.png"
+    "icon": "128x128.png"
   },
   "content_scripts": [
     {
@@ -30,6 +30,6 @@
   ],
   "web_accessible_resources": ["dist/*.*"],
   "icons": {
-    "128": "src/assets/icon-128x128.png"
+    "128": "src/assets/128x128.png"
   }
 }

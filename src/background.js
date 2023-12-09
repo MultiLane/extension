@@ -1,5 +1,4 @@
 import { BACKEND_URL } from "./config";
-import { api } from "./utils";
 import { ethers } from "ethers";
 console.log("Loaded background.js");
 chrome.webRequest.onBeforeRequest.addListener(

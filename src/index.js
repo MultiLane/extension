@@ -1,5 +1,6 @@
 import { clearWalletProvider, setAddress, setChainDetails } from "./utils";
 import { modifyProvider } from "./provider";
+import { initSCW } from "./scw";
 console.log("Load index.js of multilane");
 
 (async () => {
@@ -8,6 +9,7 @@ console.log("Load index.js of multilane");
   await setAddress();
 
   // below are independent functions so they can be called in parallel
+  initSCW();
   setChainDetails();
 })();
 

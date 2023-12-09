@@ -1860,102 +1860,6 @@ __webpack_require__.r(__webpack_exports__);
 const BACKEND_URL = "https://api.multilane.xyz";
 
 
-/***/ }),
-
-/***/ "./src/utils.js":
-/*!**********************!*\
-  !*** ./src/utils.js ***!
-  \**********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   api: () => (/* binding */ api),
-/* harmony export */   clearWalletProvider: () => (/* binding */ clearWalletProvider),
-/* harmony export */   getAddress: () => (/* binding */ getAddress),
-/* harmony export */   getChainId: () => (/* binding */ getChainId),
-/* harmony export */   isHexEqual: () => (/* binding */ isHexEqual),
-/* harmony export */   setAddress: () => (/* binding */ setAddress),
-/* harmony export */   setChainDetails: () => (/* binding */ setChainDetails)
-/* harmony export */ });
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./config */ "./src/config.js");
-
-
-const api = async (method, path, body) => {
-  if (method === "GET") {
-    const response = await fetch(
-      _config__WEBPACK_IMPORTED_MODULE_0__.BACKEND_URL + path + "?" + new URLSearchParams(body),
-      {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return response.json();
-  } else if (method === "POST") {
-    const response = await fetch(_config__WEBPACK_IMPORTED_MODULE_0__.BACKEND_URL + path, {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    return response.json();
-  }
-};
-
-const getAddress = () => {
-  let address = localStorage.getItem("address");
-  if (address != "") {
-    return address.split(",");
-  } else {
-    return [];
-  }
-};
-
-const getChainId = async () => {
-  return window.chain_id
-    ? window.chain_id
-    : parseInt(await window.ethereum.send("eth_chainId"));
-};
-
-const setAddress = async () => {
-  let address = await window.ethereum.send("eth_accounts");
-  localStorage.setItem("address", address.result);
-  if (address.result.length === 0) {
-    return;
-  }
-};
-
-// this is to stop aave from auto login, if auto login happens then metamask provider is used without this libraries customization
-const clearWalletProvider = () => {
-  let walletProvider = setInterval(async () => {
-    if (localStorage.getItem("walletProvider")) {
-      localStorage.removeItem("walletProvider");
-      clearInterval(walletProvider);
-      console.log("Clearing wallet provider");
-    }
-  }, 100);
-};
-
-const setChainDetails = async () => {
-  let res = await api("GET", "/api/chain/address/", {});
-  window.usdc_address = res?.usdc;
-  window.multilane_address = res?.multilane;
-  console.log("Set chain details");
-};
-
-const isHexEqual = (address1, address2) => {
-  // remove 0x from both addresses if it exist and compare in lower cases
-  return (
-    address1.toLowerCase().replace("0x", "") ===
-    address2.toLowerCase().replace("0x", "")
-  );
-};
-
-
 /***/ })
 
 /******/ 	});
@@ -2052,9 +1956,7 @@ var __webpack_exports__ = {};
   \***************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./config */ "./src/config.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/hash/lib.esm/id.js");
-
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/hash/lib.esm/id.js");
 
 
 console.log("Loaded background.js");
@@ -2079,7 +1981,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       if (parsedJson?.method === "eth_call") {
         if (
           parsedJson?.params[0].data.substring(0, 10) ===
-          ethers__WEBPACK_IMPORTED_MODULE_2__.id("getUserWalletBalances(address,address)")
+          ethers__WEBPACK_IMPORTED_MODULE_1__.id("getUserWalletBalances(address,address)")
             .substring(0, 10)
         ) {
           return {
