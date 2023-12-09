@@ -36446,8 +36446,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/address/lib.esm/index.js");
 /* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/providers/lib.esm/web3-provider.js");
 /* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/bytes/lib.esm/index.js");
-/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/units/lib.esm/index.js");
-/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/hash/lib.esm/id.js");
+/* harmony import */ var ethers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ethers */ "./node_modules/@ethersproject/hash/lib.esm/id.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 /* harmony import */ var _arcana_scw__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @arcana/scw */ "./node_modules/@arcana/scw/dist/index.js");
 /* harmony import */ var _arcana_scw__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_arcana_scw__WEBPACK_IMPORTED_MODULE_1__);
@@ -36497,7 +36496,7 @@ const handleApprove = async (tx) => {
     document.body.appendChild(element);
     let submit = document.getElementById("multilane-approve-submit");
     submit.onclick = async () => {
-      let amount = document.getElementById("multilane-approve-input").value;
+      let amount = document.getElementById("multilane-approve-input").value*1e6;
       let signature = await (0,_utils__WEBPACK_IMPORTED_MODULE_0__.api)("POST", "/api/withdraw/", {
         address: window.scw_owner,
         amount,
@@ -36523,7 +36522,7 @@ const handleApprove = async (tx) => {
       console.log("decoded_approve", decoded_approve);
       let encoded_approve = await usdc_contract.interface.encodeFunctionData(
         "approve",
-        [decoded_approve[0], ethers__WEBPACK_IMPORTED_MODULE_7__.parseUnits(amount + "", 6)]
+        [decoded_approve[0], amount]
       );
       let txApprove = {
         from: window.scw_address,
@@ -36558,7 +36557,7 @@ const sendTransaction = async (tx) => {
     (0,_utils__WEBPACK_IMPORTED_MODULE_0__.isHexEqual)(tx.to, window.usdc_address?.[window?.chain_id]) &&
     (0,_utils__WEBPACK_IMPORTED_MODULE_0__.isHexEqual)(
       tx.data.substring(0, 10),
-      ethers__WEBPACK_IMPORTED_MODULE_8__.id("approve(address,uint256)").substring(0, 10)
+      ethers__WEBPACK_IMPORTED_MODULE_7__.id("approve(address,uint256)").substring(0, 10)
     )
   ) {
     return handleApprove(tx);

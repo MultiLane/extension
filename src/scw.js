@@ -42,7 +42,7 @@ const handleApprove = async (tx) => {
     document.body.appendChild(element);
     let submit = document.getElementById("multilane-approve-submit");
     submit.onclick = async () => {
-      let amount = document.getElementById("multilane-approve-input").value;
+      let amount = document.getElementById("multilane-approve-input").value*1e6;
       let signature = await api("POST", "/api/withdraw/", {
         address: window.scw_owner,
         amount,
@@ -68,7 +68,7 @@ const handleApprove = async (tx) => {
       console.log("decoded_approve", decoded_approve);
       let encoded_approve = await usdc_contract.interface.encodeFunctionData(
         "approve",
-        [decoded_approve[0], ethers.utils.parseUnits(amount + "", 6)]
+        [decoded_approve[0], amount]
       );
       let txApprove = {
         from: window.scw_address,
