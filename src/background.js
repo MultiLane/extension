@@ -38,19 +38,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 console.log("Added request listner");
 
-const init = async ({ address, chain_id }) => {
-  console.log("Wallet init");
-  // let res = await api("GET", "/api/profile/public/", { address, chain_id });
-  // console.log(res);
-};
-
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
-  if (request.type === "init") {
-    await init(request.data);
-    sendResponse("Init Message received");
-  }
-});
+// chrome.runtime.onMessage.addListener(async function (
+//   request,
+//   sender,
+//   sendResponse
+// ) {
+//   console.log("request", request);
+//   sendResponse("Init Message received");
+// });
