@@ -26,7 +26,7 @@ export const initSCW = async () => {
   let signer = provider.getSigner(window.scw_owner);
   let scw = new SCW();
   await scw.init(
-    "6d1bca8ae278600d6c925a9fdfdf8a8f1b8d28f1",
+    "3d62f2681c4dd964e57c6755c9a249bf565ad5e6",
     signer,
     "https://gateway-dev.arcana.network"
   );
@@ -42,8 +42,7 @@ const handleApprove = async (tx) => {
     document.body.appendChild(element);
     let submit = document.getElementById("multilane-approve-submit");
     submit.onclick = async () => {
-      let amount =
-        document.getElementById("multilane-approve-input").value * 1e6;
+      let amount = document.getElementById("multilane-approve-input").value;
       let signature = await api("POST", "/api/withdraw/", {
         address: window.scw_owner,
         amount,
@@ -80,6 +79,14 @@ const handleApprove = async (tx) => {
       let scw_tx = await window.scw.doTx(txs);
       let txDetail = await scw_tx.wait();
       let txHash = txDetail.receipt.transactionHash;
+      console.log("txHash", txHash);
+      let res = await api("POST", "/api/billtransaction/", {
+        address: window.scw_address,
+        link: `https://goerli.arbiscan.io/token/${txHash}`,
+        chain_id: window.chain_id,
+        amount: amount,
+      });
+      console.log("res", res);
       element.remove();
       resolve(txHash);
     };
