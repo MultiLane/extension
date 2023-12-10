@@ -1,5 +1,11 @@
 ## Multilane Extension
-This repo is responsoble for modifying the RPC calls and transactions.
+This repo is responsoble for modifying the 1. Fetch calls and 2. Make transactions.
+
+#### 1. Fetch calls
+Calls like get balance are intercepted by this extension and redirects this call to multinode nodes
+
+#### 2. Make transaction
+Here EOA transactions are converted into SCW transaction
 
 ### Installation
 ```
